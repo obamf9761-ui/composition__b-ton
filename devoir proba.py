@@ -1,45 +1,105 @@
+import streamlit as st
+
 # ==========================================
-# CALCULATEUR DE DOSAGE DU BÉTON
+# CALCULATEUR DE DOSAGE DU BÉTON - APP STREAMLIT
 # ==========================================
 
-print("==========================================")
-print("       CALCULATEUR DE DOSAGE DU BÉTON")
-print("==========================================")
+st.set_page_config(
+    page_title="Calculateur de dosage du béton",
+    page_icon="🧱",
+    layout="centered"
+)
 
-# Entrée du volume de béton
-volume = float(input("Entrez le volume de béton (m³) : "))
+st.title("🧱 Calculateur de Dosage du Béton")
+st.markdown("Calculez les quantités de ciment, sable, gravier et eau nécessaires pour votre volume de béton.")
 
-# Dosage du ciment
-dosage_ciment = float(input(
-    "Entrez le dosage du ciment (kg/m³) [ex: 350] : "
-))
+st.divider()
 
-# Calcul du ciment
-ciment = volume * dosage_ciment
+# --- Entrées utilisateur ---
+st.subheader("Paramètres")
 
-# Nombre de sacs de 50 kg
-sacs = ciment / 50
+col1, col2 = st.columns(2)
 
-# Quantités de sable, gravier et eau
-# Valeurs de référence pour 1 m³
-sable_par_m3 = 0.50
-gravier_par_m3 = 0.80
-eau_par_m3 = 175
+with col1:
+    volume = st.number_input(
+        "Volume de béton (m³)",
+        min_value=0.0,
+        value=1.0,
+        step=0.1,
+        format="%.2f"
+    )
 
-sable = volume * sable_par_m3
-gravier = volume * gravier_par_m3
-eau = volume * eau_par_m3
+with col2:
+    dosage_ciment = st.number_input(
+        "Dosage du ciment (kg/m³)",
+        min_value=0.0,
+        value=350.0,
+        step=10.0,
+        format="%.1f",
+        help="Valeur courante : 350 kg/m³ pour un béton standard"
+    )
 
-# Affichage des résultats
-print("\n==========================================")
-print("              RÉSULTATS")
-print("==========================================")
+st.markdown("**Quantités de référence par m³ (modifiables)**")
+col3, col4, col5 = st.columns(3)
 
-print(f"Volume de béton : {volume:.2f} m³")
-print(f"Ciment          : {ciment:.2f} kg")
-print(f"Sacs de 50 kg   : {sacs:.2f} sacs")
-print(f"Sable           : {sable:.2f} m³")
-print(f"Gravier         : {gravier:.2f} m³")
-print(f"Eau             : {eau:.2f} litres")
+with col3:
+    sable_par_m3 = st.number_input("Sable (m³/m³)", min_value=0.0, value=0.50, step=0.05, format="%.2f")
 
-print("==========================================")
+with col4:
+    gravier_par_m3 = st.number_input("Gravier (m³/m³)", min_value=0.0, value=0.80, step=0.05, format="%.2f")
+
+with col5:
+    eau_par_m3 = st.number_input("Eau (L/m³)", min_value=0.0, value=175.0, step=5.0, format="%.1f")
+
+st.divider()
+
+# --- Calculs ---
+if st.button("Calculer", type="primary", use_container_width=True) or volume > 0:
+    ciment = volume * dosage_ciment
+    sacs = ciment / 50
+    sable = volume * sable_par_m3
+    gravier = volume * gravier_par_m3
+    eau = volume * eau_par_m3
+
+    st.subheader("📊 Résultats")
+
+    r1, r2 = st.columns(2)
+    with r1:
+        st.metric("Volume de béton", f"{volume:.2f} m³")
+        st.metric("Ciment", f"{ciment:.2f} kg")
+        st.metric("Sacs de 50 kg", f"{sacs:.2f} sacs")
+
+    with r2:
+        st.metric("Sable", f"{sable:.2f} m³")
+        st.metric("Gravier", f"{gravier:.2f} m³")
+        st.metric("Eau", f"{eau:.2f} L")
+
+    with st.expander("Voir le détail du calcul"):
+        st.write(f"- Ciment = Volume × Dosage = {volume:.2f} × {dosage_ciment:.1f} = **{ciment:.2f} kg**")
+        st.write(f"- Sacs de 50 kg = Ciment ÷ 50 = {ciment:.2f} ÷ 50 = **{sacs:.2f} sacs**")
+        st.write(f"- Sable = Volume × {sable_par_m3:.2f} = **{sable:.2f} m³**")
+        st.write(f"- Gravier = Volume × {gravier_par_m3:.2f} = **{gravier:.2f} m³**")
+        st.write(f"- Eau = Volume × {eau_par_m3:.1f} = **{eau:.2f} L**")
+
+    # Export des résultats
+    resultats_txt = f"""CALCULATEUR DE DOSAGE DU BÉTON
+==========================================
+Volume de béton : {volume:.2f} m³
+Ciment          : {ciment:.2f} kg
+Sacs de 50 kg   : {sacs:.2f} sacs
+Sable           : {sable:.2f} m³
+Gravier         : {gravier:.2f} m³
+Eau             : {eau:.2f} litres
+==========================================
+"""
+    st.download_button(
+        label="📥 Télécharger les résultats (.txt)",
+        data=resultats_txt,
+        file_name="dosage_beton.txt",
+        mime="text/plain"
+    )
+else:
+    st.info("Entrez un volume supérieur à 0 ou cliquez sur **Calculer**.")
+
+st.divider()
+st.caption("Valeurs de référence données à titre indicatif ; adaptez-les selon la formulation souhaitée.")
