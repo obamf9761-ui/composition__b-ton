@@ -18,38 +18,19 @@ st.divider()
 # --- Entrées utilisateur ---
 st.subheader("Paramètres")
 
-col1, col2 = st.columns(2)
+volume = st.number_input(
+    "Volume de béton (m³)",
+    min_value=0.0,
+    value=1.0,
+    step=0.1,
+    format="%.2f"
+)
 
-with col1:
-    volume = st.number_input(
-        "Volume de béton (m³)",
-        min_value=0.0,
-        value=1.0,
-        step=0.1,
-        format="%.2f"
-    )
-
-with col2:
-    dosage_ciment = st.number_input(
-        "Dosage du ciment (kg/m³)",
-        min_value=0.0,
-        value=350.0,
-        step=10.0,
-        format="%.1f",
-        help="Valeur courante : 350 kg/m³ pour un béton standard"
-    )
-
-st.markdown("**Quantités de référence par m³ (modifiables)**")
-col3, col4, col5 = st.columns(3)
-
-with col3:
-    sable_par_m3 = st.number_input("Sable (m³/m³)", min_value=0.0, value=0.50, step=0.05, format="%.2f")
-
-with col4:
-    gravier_par_m3 = st.number_input("Gravier (m³/m³)", min_value=0.0, value=0.80, step=0.05, format="%.2f")
-
-with col5:
-    eau_par_m3 = st.number_input("Eau (L/m³)", min_value=0.0, value=175.0, step=5.0, format="%.1f")
+# --- Paramètres fixes (non modifiables par l'utilisateur) ---
+dosage_ciment = 350.0   # kg/m³
+sable_par_m3 = 0.50     # m³/m³
+gravier_par_m3 = 0.80   # m³/m³
+eau_par_m3 = 175.0      # L/m³
 
 st.divider()
 
